@@ -46,7 +46,6 @@ namespace CommunityForumsNNTPServer.WebServiceDataSource
         public void Validate(ServiceEndpoint endpoint) { }
         #endregion
 
-#if PASSPORT_HEADER_ANALYSIS
       public string CheckTicket()
       {
         // Check the AuthenticationCode:
@@ -73,7 +72,6 @@ namespace CommunityForumsNNTPServer.WebServiceDataSource
           return NNTPServer.Traces.ExceptionToString(exp);
         }
       }
-#endif
     }
 
 }

@@ -460,7 +460,29 @@ namespace CommunityForumsNNTPServer.WebServiceDataSource
     /// <returns></returns>
     public TResult RetryCall<TResult>(Func<TResult> func, uint retryCount = 1u)
     {
-      return func();
+      try
+      {
+        return func();
+      }
+      catch (Exception exp)
+      {
+          if (string.Equals(exp.Message, "Passport Header Not Found", StringComparison.OrdinalIgnoreCase))
+          {
+            // CheckTicket...
+            var forumService = _service as ClientBase<IForumsService>;
+            if (forumService != null)
+            {
+              var ai =
+                forumService.Endpoint.Behaviors.FirstOrDefault(p => p is AuthenticationInspector) as
+                AuthenticationInspector;
+              if (ai != null)
+              {
+                Traces.WebService_TraceEvent(TraceEventType.Information, 1, "CheckTicket: {0}", ai.CheckTicket());
+              }
+            }
+          }
+        throw;
+      }
 #if PASSPORT_HEADER_ANALYSIS
       uint cnt = 0;
       while (true)

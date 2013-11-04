@@ -102,7 +102,11 @@ namespace CommunityForumsNNTPServer
               }
               if (msg != null)
               {
-                if ((msg.Length > 200) && (msg.IndexOf("Exception", StringComparison.Ordinal) < 0) && (msg.IndexOf("<s:Envelope", StringComparison.Ordinal) < 0))
+                if ((msg.Length > 200) 
+                  && (msg.IndexOf("Exception", StringComparison.Ordinal) < 0) 
+                  && (msg.IndexOf("<s:Envelope", StringComparison.Ordinal) < 0)
+                  && (msg.IndexOf("CheckTicket", StringComparison.Ordinal) < 0)
+                  )
                   msg = msg.Substring(0, 200);
 
                 sw.WriteLine(msg);
