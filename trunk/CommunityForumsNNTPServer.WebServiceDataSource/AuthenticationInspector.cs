@@ -13,11 +13,28 @@ namespace CommunityForumsNNTPServer.WebServiceDataSource
 
     public class AuthenticationInspector : IClientMessageInspector, IEndpointBehavior
     {
-        public string PassportTicket
-        { get; set; }
+      private string _passportTicket;
 
-        public AuthenticationInspector(string ticket)
-        { PassportTicket = ticket; }
+      public string PassportTicket
+      {
+        get { return _passportTicket; }
+        set
+        {
+#if PASSPORT_HEADER_ANALYSIS
+          var sb = new StringBuilder();
+          sb.AppendFormat("CheckTicket-Old: {0}", CheckTicket());
+          sb.AppendLine("---");
+          _passportTicket = value;
+          sb.AppendFormat("CheckTicket-New: {0}", CheckTicket());
+          Traces.WebService_TraceEvent(TraceEventType.Information, 2, sb.ToString());
+#else
+          _passportTicket = value;
+#endif
+        }
+      }
+
+      public AuthenticationInspector(string ticket)
+        { _passportTicket = ticket; }
 
         #region IClientMessageInspector Members
         public void AfterReceiveReply(ref Message reply, object correlationState)

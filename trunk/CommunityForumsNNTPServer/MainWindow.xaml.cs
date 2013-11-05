@@ -70,22 +70,23 @@ namespace CommunityForumsNNTPServer
         {
             InitializeComponent();
 
-          // Set Icon explizit, because of a Bug in WindowsXP:
+            // Set Icon explizit, because of a Bug in WindowsXP:
             // https://communitybridge.codeplex.com/workitem/11374
-          try
-          {
-            var logo = new BitmapImage();
-            logo.BeginInit();
-            logo.UriSource =
-              new Uri(
-                "pack://application:,,,/CommunityForumsNNTPServer;component/Resources/CommunityForumsNNTPServer.ico");
-            logo.EndInit();
-            Icon = logo;
-          }
-          catch (Exception exp)
-          {
-            Traces.Main_TraceEvent(TraceEventType.Error, 1, NNTPServer.Traces.ExceptionToString(exp));
-          }
+            try
+            {
+              var logo = new BitmapImage();
+              logo.BeginInit();
+              logo.UriSource =
+                new Uri(
+                  "pack://application:,,,/CommunityForumsNNTPServer;component/Resources/CommunityForumsNNTPServer.ico");
+              logo.EndInit();
+
+              Icon = logo;
+            }
+            catch (Exception exp)
+            {
+              Traces.Main_TraceEvent(TraceEventType.Error, 1, NNTPServer.Traces.ExceptionToString(exp));
+            }
 
           if (Icon == null)
           {
@@ -526,7 +527,7 @@ namespace CommunityForumsNNTPServer
           while (true)
           {
             Thread.Sleep(50 * 60 * 1000);  // Wait 50 Minutes...
-            //Thread.Sleep(2 * 60 * 1000);  // Wait 55 Minutes...
+            //Thread.Sleep(1 * 60 * 1000);  // Wait 1 Minute for test...
             LiveAuthClient client = this.AuthClient;
             if (client != null)
             {
