@@ -464,6 +464,7 @@ namespace CommunityForumsNNTPServer
               endUrl,
               this.OnAuthCompleted);
             this.authForm.FormClosed += AuthForm_FormClosed;
+            this.authForm.NavigatedUrl = OnAuthNavigatedUrl;
             this.authForm.ShowDialog(wnd);
           }
         }
@@ -492,8 +493,14 @@ namespace CommunityForumsNNTPServer
           }
         }
 
+        private void OnAuthNavigatedUrl(string url)
+        {
+          Traces.Main_TraceEvent(TraceEventType.Information, 1, string.Format("AuthNavigatedUrl: {0}", url));
+        }
         private void OnAuthCompleted(AuthResult result)  // async
         {
+          Traces.Main_TraceEvent(TraceEventType.Information, 1, string.Format("AuthResult: {0} - {1} - {2}", 
+            result.ErrorCode, result.ErrorDescription, result.AuthorizeCode));
           this.CleanupAuthForm();
           if (result.AuthorizeCode != null)
           {

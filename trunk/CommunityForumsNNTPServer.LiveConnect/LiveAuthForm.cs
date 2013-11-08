@@ -25,7 +25,9 @@ namespace CommunityForumsNNTPServer.LiveConnect
             InitializeComponent();
         }
 
-        private void LiveAuthForm_Load(object sender, EventArgs e)
+      public Action<string> NavigatedUrl;
+
+      private void LiveAuthForm_Load(object sender, EventArgs e)
         {
             this.webBrowser.Navigated += WebBrowser_Navigated;
             this.webBrowser.Navigate(this.startUrl);
@@ -34,6 +36,10 @@ namespace CommunityForumsNNTPServer.LiveConnect
 
         private void WebBrowser_Navigated(object sender, WebBrowserNavigatedEventArgs e)
         {
+          if (NavigatedUrl != null)
+          {
+            NavigatedUrl(e.Url.ToString());
+          }
           if (string.IsNullOrEmpty(endUrl) == false)
           {
             if (this.webBrowser.Url.AbsoluteUri.StartsWith(this.endUrl))
