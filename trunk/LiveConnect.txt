@@ -1,0 +1,5 @@
+
+https://account.live.com/developers/applications/summary/000000004C0F8E22
+NNTPBridge_Test
+ClientID: 000000004C0F8E22
+
