@@ -3,7 +3,7 @@
 ## Get user details
 
 ```httprequest
-GET http://api.msdn.microsoft.com/forums/users/{user}[?api-version={string}]
+GET http://forumsapi.msdn.microsoft.com/users/{user}[?api-version={string}]
 ```
 
 | Parameter   | Type     | Default | Notes 
@@ -16,9 +16,9 @@ GET http://api.msdn.microsoft.com/forums/users/{user}[?api-version={string}]
 
 #### Sample request
 ```httprequest
-GET http://api.msdn.microsoft.com/forums/users/5812d39c-2064-4fee-ba3e-eb9716fb7a37
+GET http://forumsapi.msdn.microsoft.com/users/5812d39c-2064-4fee-ba3e-eb9716fb7a37
 
-GET http://api.msdn.microsoft.com/forums/users/Nigel%20Beasley
+GET http://forumsapi.msdn.microsoft.com/users/Nigel%20Beasley
 ```
 
 #### Sample response
@@ -30,7 +30,7 @@ GET http://api.msdn.microsoft.com/forums/users/Nigel%20Beasley
             "id":"5812d39c-2064-4fee-ba3e-eb9716fb7a37",
             "displayName":"Nigel Beasley",
             "role" : [ "communityContributor" ],
-            "url" :"http://api.msdn.microsoft.com/forums/users/5812d39c-2064-4fee-ba3e-eb9716fb7a37",
+            "url" :"http://forumsapi.msdn.microsoft.com/forums/users/5812d39c-2064-4fee-ba3e-eb9716fb7a37",
             "webUrl": "http://social.msdn.microsoft.com/Profile/Nigel%20Beasley",
             "points" : 7,
             "messagesCount" : 14,
@@ -43,13 +43,14 @@ GET http://api.msdn.microsoft.com/forums/users/Nigel%20Beasley
 ## search users
 
 ```httprequest
-GET http://api.msdn.microsoft.com/forums/users[?user={string}[,{string}]&role={string}[,{string}]&sort={string}&order={string}&page={integer}&pageSize={integer}&api-version={string}]
+GET http://forumsapi.msdn.microsoft.com/users[?userId={string}[,{string}]&userName={string}[,{string}]&role={string}[,{string}]&sort={string}&order={string}&page={integer}&pageSize={integer}&api-version={string}]
 ```
 
 | Parameter      | Type     | Default | Notes
 |:-----------    |:--------:|:-------:|:----------------------------------------------------------------------------------------------------------------------------
 | Query
-| user           | string   |         | Id or display name of the user.  A comma-separated list of users may be supplied.
+| userId           | string   |         | Id of the user.  A comma-separated list of users may be supplied.
+| userName           | string   |         | Display name of the user.  A comma-separated list of users may be supplied.
 | role           | string   |         | The role of the user.  Allowed roles are: "microsoftEmployee", "microsoftValuableProfessional", "partner", "microsoftSupportStaff", "microsoftContingentStaff", and "communityContributor". A comma-separated list of roles may be supplied. If multiple roles are provided, a user will be included in the result set if any role is matched.
 | sort           | string   | points  | The sort order of returned users.  Valid values are "displayName", "points", "answersCount", "messagesCount".
 | order          | string   | desc    | The sort order of returned threads.  Valid values are "asc", "desc".
@@ -62,7 +63,7 @@ GET http://api.msdn.microsoft.com/forums/users[?user={string}[,{string}]&role={s
 
 #### Sample request
 ```httprequest
-GET http://api.msdn.microsoft.com/forums/users?user=5812d39c-2064-4fee-ba3e-eb9716fb7a37,26b8b233-d0a6-41cc-859c-eb96b2225607
+GET http://forumsapi.msdn.microsoft.com/users?userId=5812d39c-2064-4fee-ba3e-eb9716fb7a37,26b8b233-d0a6-41cc-859c-eb96b2225607
 ```
 
 #### Sample response
@@ -74,7 +75,7 @@ GET http://api.msdn.microsoft.com/forums/users?user=5812d39c-2064-4fee-ba3e-eb97
             "id":"5812d39c-2064-4fee-ba3e-eb9716fb7a37",
             "displayName": "Nigel Beasley",
             "role" : [ "microsoftValuedProfessional" ],
-            "url" :"http://api.msdn.microsoft.com/forums/users/5812d39c-2064-4fee-ba3e-eb9716fb7a37",
+            "url" :"http://forumsapi.msdn.microsoft.com/forums/users/5812d39c-2064-4fee-ba3e-eb9716fb7a37",
             "webUrl": "http://social.msdn.microsoft.com/Profile/Nigel%20Beasley",
             "points" : 7,
             "messagesCount" : 14,
@@ -84,7 +85,7 @@ GET http://api.msdn.microsoft.com/forums/users?user=5812d39c-2064-4fee-ba3e-eb97
             "id":"26b8b233-d0a6-41cc-859c-eb96b2225607",
             "displayName": "larrysir",
             "role" : [ "microsoftContingentStaff" ],
-            "url" :"http://api.msdn.microsoft.com/forums/users/26b8b233-d0a6-41cc-859c-eb96b2225607",
+            "url" :"http://forumsapi.msdn.microsoft.com/forums/users/26b8b233-d0a6-41cc-859c-eb96b2225607",
             "webUrl": "http://social.msdn.microsoft.com/Profile/larrysir",
             "points" : 0,
             "messagesCount" : 2,
