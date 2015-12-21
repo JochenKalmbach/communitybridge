@@ -23,6 +23,8 @@ namespace CommunityForumsNNTPServer
                 return;
             }
 
+            _AppInsights = new AppInsights("a99ceec1-6478-4a94-bca1-874613b380f9", "CommunityBridge", UserSettings.Default.AppAccountId, UserSettings.Default.UseAppInsights);
+
             // Initialize logging and exception handling...
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
@@ -32,12 +34,17 @@ namespace CommunityForumsNNTPServer
         }
 
         private LogFile _logFile;
+        private AppInsights _AppInsights = null;
 
       static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-          string expMsg = NNTPServer.Traces.ExceptionToString(e.ExceptionObject as Exception);
-          if (string.IsNullOrEmpty(expMsg))
-            expMsg = "<Unknown Exception>";
+            var exp = e.ExceptionObject as Exception;
+            if (exp == null)
+            {
+                exp = new ApplicationException("<Unknown Exception>");
+            }
+            AppInsights.TrackException(exp);
+            string expMsg = NNTPServer.Traces.ExceptionToString(exp);
           Traces.Main_TraceEvent(System.Diagnostics.TraceEventType.Critical, 1, "UnhandledException: {0}",
                                  expMsg);
 
@@ -47,6 +54,12 @@ namespace CommunityForumsNNTPServer
         protected override void OnExit(ExitEventArgs e)
         {
             base.OnExit(e);
+
+            if (_AppInsights != null)
+            {
+                _AppInsights.Dispose();
+            }
+
             if (_singleInstanceMutex != null)
                 GC.KeepAlive(_singleInstanceMutex);
         }

@@ -404,6 +404,9 @@ namespace CommunityForumsNNTPServer
 
                         foreach (var b in brands)
                         {
+                            bool success = false;
+                            var dt = DateTimeOffset.UtcNow;
+                            var sw = Stopwatch.StartNew();
                             try
                             {
                                 // Load the list of all newsgroups:
@@ -441,16 +444,23 @@ namespace CommunityForumsNNTPServer
                                         string.Format("{0}: Downloading {1} from {2}", localBrand,retrivedCount, totalCount)));
 
                                 System.Diagnostics.Debug.WriteLine("Finished downloading of forums.");
+                                success = true;
                             }
                             catch (Exception exp2)
                             {
+                                AppInsights.TrackException(exp2, true);
                                 res = false;
                                 Traces.Main_TraceEvent(TraceEventType.Error, 1, "Error during GetAvailableForums ({1}: {0}", NNTPServer.Traces.ExceptionToString(exp2), b);
+                            }
+                            finally
+                            {
+                                AppInsights.TrackRequest("GetAvailableForums", dt, sw.Elapsed, success);
                             }
                         }
                     }
                     catch (Exception exp)
                     {
+                        AppInsights.TrackException(exp, true);
                         res = false;
                         Traces.Main_TraceEvent(TraceEventType.Error, 1, "Error during LoadNewsgroupsToStream (SupportedBrands): {0}", NNTPServer.Traces.ExceptionToString(exp));
                     }
@@ -524,6 +534,7 @@ namespace CommunityForumsNNTPServer
                     }
                     catch (Exception exp)
                     {
+                        AppInsights.TrackException(exp, true);
                         res = false;
                         Traces.Main_TraceEvent(TraceEventType.Error, 1, "Error during GetNewsgroupListFromDate (SupportedBrands): {0}", NNTPServer.Traces.ExceptionToString(exp));
                     }
@@ -570,7 +581,23 @@ namespace CommunityForumsNNTPServer
                 {
                     if (p.IsDisabled)
                         continue;
-                    webGroup = p.GetForumNewsGroupByName(groupParts[2]);
+                    bool success = false;
+                    var dt = DateTimeOffset.UtcNow;
+                    var sw = Stopwatch.StartNew();
+                    try
+                    {
+                        webGroup = p.GetForumNewsGroupByName(groupParts[2]);
+                        success = true;
+                    }
+                    catch(Exception exp)
+                    {
+                        AppInsights.TrackException(exp, true);
+                        throw;
+                    }
+                    finally
+                    {
+                        AppInsights.TrackRequest("GetForumNewsGroupByName", dt, sw.Elapsed, success);
+                    }
                     if (webGroup != null)
                     {
                         provider = p;
@@ -580,7 +607,23 @@ namespace CommunityForumsNNTPServer
             }
             else
             {
-                webGroup = provider.GetForumNewsGroupByName(groupParts[2]);
+                bool success = false;
+                var dt = DateTimeOffset.UtcNow;
+                var sw = Stopwatch.StartNew();
+                try
+                {
+                    webGroup = provider.GetForumNewsGroupByName(groupParts[2]);
+                    success = true;
+                }
+                catch(Exception ex)
+                {
+                    AppInsights.TrackException(ex, true);
+                    throw;
+                }
+                finally
+                {
+                    AppInsights.TrackRequest("GetForumNewsGroupByName", dt, sw.Elapsed, success);
+                }
             }
 
             if (webGroup != null)
@@ -615,7 +658,24 @@ namespace CommunityForumsNNTPServer
             {
                 if (provider.IsDisabled)
                     continue;
-                var group = provider.GetForumNewsGroup(forumId);
+                bool success = false;
+                var dt = DateTimeOffset.UtcNow;
+                var sw = Stopwatch.StartNew();
+                WebServiceDataSource.Forums.ForumNewsGroup group = null;
+                try
+                {
+                    group = provider.GetForumNewsGroup(forumId);
+                    success = true;
+                }
+                catch(Exception ex)
+                {
+                    AppInsights.TrackException(ex, true);
+                    throw;
+                }
+                finally
+                {
+                    AppInsights.TrackRequest("GetForumNewsGroup", dt, sw.Elapsed, success);
+                }
                 if (group != null)
                 {
                     var g = new ForumNewsgroup(group, string.Empty, provider);
@@ -747,7 +807,26 @@ namespace CommunityForumsNNTPServer
             }
 
             // Get it from the server...
-            var res = g.Provider.GetMessage(g.ForumId, id);
+            WebServiceDataSource.Forums.Message res = null;
+
+
+            bool success = false;
+            var dt = DateTimeOffset.UtcNow;
+            var sw = Stopwatch.StartNew();
+            try
+            {
+                res = g.Provider.GetMessage(g.ForumId, id);
+                success = true;
+            }
+            catch(Exception ex)
+            {
+                AppInsights.TrackException(ex, true);
+                throw;
+            }
+            finally
+            {
+                AppInsights.TrackRequest("GetMessage", dt, sw.Elapsed, success);
+            }
             if (res == null) return null;
 
             // Store it in my cache...
@@ -824,6 +903,7 @@ namespace CommunityForumsNNTPServer
             }
             catch (Exception exp)
             {
+                AppInsights.TrackException(exp, true);
                 Traces.Main_TraceEvent(TraceEventType.Error, 1, "ConvertNewArticleFromWebService failed: {0}", NNTPServer.Traces.ExceptionToString(exp));
             }
         }
@@ -836,6 +916,7 @@ namespace CommunityForumsNNTPServer
             }
             catch (Exception exp)
             {
+                AppInsights.TrackException(exp, true);
                 Traces.Main_TraceEvent(TraceEventType.Error, 1, "ConvertNewArticleFromNewsClientToWebService failed: {0}", NNTPServer.Traces.ExceptionToString(exp));
            }
         }
@@ -853,15 +934,21 @@ namespace CommunityForumsNNTPServer
                         return g.Articles[articleNumber];
                 }
             }
+
             // 2011-11-13: Workaround for bug in web-service:
             // For more info see: http://communitybridge.codeplex.com/workitem/9553
             WebServiceDataSource.Forums.BriefMessagesContainer m = null;
+            bool success = false;
+            var dt = DateTimeOffset.UtcNow;
+            var sw = Stopwatch.StartNew();
             try
             {
               m = g.Provider.GetForumMessagesBriefForNNTP(g.ForumId, articleNumber, articleNumber, true);
+              success = true;
             }
             catch (Exception ex)
             {
+              AppInsights.TrackException(ex, true);
               // Handle special Exception from Web-Service (appeared by Nov 2011...)
               // See: http://communitybridge.codeplex.com/workitem/9553
               //[Client 2] DataReceived failed: Exception:
@@ -897,6 +984,10 @@ namespace CommunityForumsNNTPServer
               }
               throw;  // rethrow on unknown message exception
             }
+            finally
+            {
+                AppInsights.TrackRequest("GetMessageBrief", dt, sw.Elapsed, success);
+            }
 
             if (m.Results.Length > 0)
             {
@@ -930,33 +1021,51 @@ namespace CommunityForumsNNTPServer
             var g = GetNewsgroupFromCacheOrServer(groupName) as ForumNewsgroup;
             if (g == null) return;
 
-            var articles = g.Provider.GetForumMessagesBriefForNntp(g.ForumId, firstArticle, lastArticle, true, 
-                p =>
-                {
-                    var article = new ForumArticle(p, g, _domainName, AddHistoryToArticle);
-                    ConvertNewArticleFromWebService(article);
-
-                    return article;
-                }, 
-                (articleList) =>
-                {
-                    List<Article> al = new List<Article>();
-                    foreach (var article in articleList.OrderBy(p => p.Number))
+            bool success = false;
+            var dt = DateTimeOffset.UtcNow;
+            var sw = Stopwatch.StartNew();
+            int cnt = 0;
+            try
+            {
+                var articles = g.Provider.GetForumMessagesBriefForNntp(g.ForumId, firstArticle, lastArticle, true,
+                    p =>
                     {
-                        al.Add(article);
-                        if (UserSettings.Default.DisableArticleCache == false)
+                        var article = new ForumArticle(p, g, _domainName, AddHistoryToArticle);
+                        ConvertNewArticleFromWebService(article);
+
+                        return article;
+                    },
+                    (articleList) =>
+                    {
+                        List<Article> al = new List<Article>();
+                        foreach (var article in articleList.OrderBy(p => p.Number))
                         {
-                            lock (g.Articles)
+                            al.Add(article);
+                            if (UserSettings.Default.DisableArticleCache == false)
                             {
-                                g.Articles[article.Number] = article;
+                                lock (g.Articles)
+                                {
+                                    g.Articles[article.Number] = article;
+                                }
                             }
                         }
-                    }
-                    if (articlesProgressAction != null)
-                    {
-                        articlesProgressAction(al);
-                    }
-                });
+                        if (articlesProgressAction != null)
+                        {
+                            articlesProgressAction(al);
+                        }
+                    });
+                success = true;
+                cnt = articles.Count;
+            }
+            catch(Exception exp)
+            {
+                AppInsights.TrackException(exp, true);
+                throw;
+            }
+            finally
+            {
+                AppInsights.TrackRequest("GetMessageBriefList", dt, sw.Elapsed, success, cnt);
+            }
         }
 
         private static readonly Regex RemoveUnusedhtmlStuffRegex = new Regex(".*<body[^>]*>\r*\n*(.*)\r*\n*</\\s*body>", 
@@ -999,11 +1108,29 @@ namespace CommunityForumsNNTPServer
                 }
 
                 // Check if this is a new post or a reply:
+
                 Guid myThreadGuid;
                 if (string.IsNullOrEmpty(a.References))
                 {
-                  WebServiceDataSource.Traces.WebService_TraceEvent(TraceEventType.Verbose, 1, "CreateQuestionThread: ForumId: {0}, Subject: {1}, Content: {2}", g.ForumId, a.Subject, a.Body);
-                    myThreadGuid = g.Provider.CreateQuestionThread(g.ForumId, a.Subject, a.Body);
+                    WebServiceDataSource.Traces.WebService_TraceEvent(TraceEventType.Verbose, 1, "CreateQuestionThread: ForumId: {0}, Subject: {1}, Content: {2}", g.ForumId, a.Subject, a.Body);
+
+                    bool success = false;
+                    var dt = DateTimeOffset.UtcNow;
+                    var sw = Stopwatch.StartNew();
+                    try
+                    {
+                        myThreadGuid = g.Provider.CreateQuestionThread(g.ForumId, a.Subject, a.Body);
+                        success = true;
+                    }
+                    catch(Exception ex)
+                    {
+                        AppInsights.TrackException(ex, true);
+                        throw;
+                    }
+                    finally
+                    {
+                        AppInsights.TrackRequest("CreateQuestion", dt, sw.Elapsed, success);
+                    }
                 }
                 else
                 {
@@ -1015,7 +1142,24 @@ namespace CommunityForumsNNTPServer
                         throw new ApplicationException("Parent message not found!");
 
                     WebServiceDataSource.Traces.WebService_TraceEvent(TraceEventType.Verbose, 1, "CreateReply: ForumId: {0}, DiscussionId: {1}, ThreadId: {2}, Content: {3}", g.ForumId, res.DiscussionId, res.Guid, a.Body);
-                    myThreadGuid = g.Provider.CreateReply(g.ForumId, res.DiscussionId, res.Guid, a.Body);
+
+                    bool success = false;
+                    var dt = DateTimeOffset.UtcNow;
+                    var sw = Stopwatch.StartNew();
+                    try
+                    {
+                        myThreadGuid = g.Provider.CreateReply(g.ForumId, res.DiscussionId, res.Guid, a.Body);
+                        success = true;
+                    }
+                    catch(Exception ex)
+                    {
+                        AppInsights.TrackException(ex, true);
+                        throw;
+                    }
+                    finally
+                    {
+                        AppInsights.TrackRequest("CreateReply", dt, sw.Elapsed, success);
+                    }
                 }
 
                 // TODO: Auto detect my email and username (guid):
@@ -1080,6 +1224,7 @@ namespace CommunityForumsNNTPServer
                 }
                 catch (Exception exp)
                 {
+                    AppInsights.TrackException(exp, true);
                     Traces.Main_TraceEvent(TraceEventType.Error, 1, "Error in retrieving own article: {0}", NNTPServer.Traces.ExceptionToString(exp));                    
                 }
             }
@@ -1277,6 +1422,7 @@ namespace CommunityForumsNNTPServer
                 }
                 catch (Exception exp)
                 {
+                    AppInsights.TrackException(exp, true);
                     Traces.Main_TraceEvent(TraceEventType.Error, 1, "Error in UserMapping: {0}",
                                            NNTPServer.Traces.ExceptionToString(exp));
                 }

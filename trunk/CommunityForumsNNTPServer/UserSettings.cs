@@ -97,6 +97,8 @@ namespace CommunityForumsNNTPServer
             u._userMappings = new CommunityForumsNNTPServer.ArticleConverter.UserMappingCollection();
             u._userMappings.AddRange(this._userMappings);
 
+            u.UseAppInsights = this._useAppInsights;
+
             return u;
         }
 
@@ -304,6 +306,26 @@ namespace CommunityForumsNNTPServer
                     b = GetBoolean(r, "AddHistoryToArticle");
                     if (b.HasValue)
                         AddHistoryToArticle = b.Value;
+
+                    AppInsightsLevel? ail = GetEnum<AppInsightsLevel>(r, "UseAppInsights");
+                    if (ail.HasValue)
+                        UseAppInsights = ail.Value;
+
+                    s = GetString(r, "AppAccountId");
+                    if (string.IsNullOrEmpty(s))
+                    {
+                        // Create a unique id for this installation
+                        s = Guid.NewGuid().ToString();
+                        try
+                        {
+                            using (var rw = UserAppDataRegistryForWriting)
+                            {
+                                SetString(rw, "AppAccountId", s);
+                            }
+                        }
+                        catch { }
+                    }
+                    AppAccountId = s;
                 }
             }
             catch (Exception exp)
@@ -375,6 +397,8 @@ namespace CommunityForumsNNTPServer
                     SetInt32(r, "TabAsSpace", TabAsSpace);
 
                     SetBoolean(r, "AddHistoryToArticle", AddHistoryToArticle);
+
+                    SetEnum(r, "UseAppInsights", UseAppInsights);
                 }
             }
             catch (Exception exp)
@@ -935,6 +959,18 @@ namespace CommunityForumsNNTPServer
             get { return _disableArticleCache; }
             set { _disableArticleCache = value; }
         }
+
+        private AppInsightsLevel _useAppInsights = AppInsightsLevel.Detailed;
+        [Category("General")]
+        [DefaultValue(AppInsightsLevel.Detailed)]
+        [Description("Application insights will be send to azure. This helps to improve the application and to communicate the usage of this bridge to Microsoft.")]
+        public AppInsightsLevel UseAppInsights
+        {
+            get { return _useAppInsights; }
+            set { _useAppInsights = value; }
+        }
+
+        internal string AppAccountId { get; private set; }
 
         #endregion
     }  // class UserSettings

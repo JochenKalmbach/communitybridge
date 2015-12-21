@@ -85,7 +85,8 @@ namespace CommunityForumsNNTPServer
             }
             catch (Exception exp)
             {
-              Traces.Main_TraceEvent(TraceEventType.Error, 1, NNTPServer.Traces.ExceptionToString(exp));
+                AppInsights.TrackException(exp, true);
+                Traces.Main_TraceEvent(TraceEventType.Error, 1, NNTPServer.Traces.ExceptionToString(exp));
             }
 
           if (Icon == null)
@@ -238,6 +239,7 @@ namespace CommunityForumsNNTPServer
                     }
                     catch (Exception exp)
                     {
+                        AppInsights.TrackException(exp, true);
                         error = exp.Message;
                     }
                     t.Dispatcher.Invoke(
@@ -705,6 +707,7 @@ namespace CommunityForumsNNTPServer
                 }
                 catch (Exception exp)
                 {
+                    AppInsights.TrackException(exp, true);
                     SetPrefetchInfo(t, string.Format("Exception: {0}", NNTPServer.Traces.ExceptionToString(exp)), true);
                 }
             }, this);
@@ -908,6 +911,7 @@ namespace CommunityForumsNNTPServer
             }
             catch (Exception exp)
             {
+                AppInsights.TrackException(exp, true);
                 Traces.Main_TraceEvent(TraceEventType.Error, 1, "Error in mnuDebugWindow_click: {0}", NNTPServer.Traces.ExceptionToString(exp));
             }
         }
@@ -1209,6 +1213,7 @@ namespace CommunityForumsNNTPServer
             }
             catch (Exception exp)
             {
+                AppInsights.TrackException(exp, true);
                 Traces.Main_TraceEvent(TraceEventType.Critical, 1, "Error while serializing UICache: {0}", NNTPServer.Traces.ExceptionToString(exp));
             }
         }
@@ -1231,6 +1236,7 @@ namespace CommunityForumsNNTPServer
             }
             catch (Exception exp)
             {
+                AppInsights.TrackException(exp, true);
                 Traces.Main_TraceEvent(TraceEventType.Critical, 1, "Error while deserializing UICache: {0}\r\n{1}", fileName, NNTPServer.Traces.ExceptionToString(exp));
             }
             return null;
