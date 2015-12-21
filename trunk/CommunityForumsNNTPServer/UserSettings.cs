@@ -960,9 +960,9 @@ namespace CommunityForumsNNTPServer
             set { _disableArticleCache = value; }
         }
 
-        private AppInsightsLevel _useAppInsights = AppInsightsLevel.Detailed;
+        private AppInsightsLevel _useAppInsights = AppInsightsLevel.Default;
         [Category("General")]
-        [DefaultValue(AppInsightsLevel.Detailed)]
+        [DefaultValue(AppInsightsLevel.Default)]
         [Description("Application insights will be send to azure. This helps to improve the application and to communicate the usage of this bridge to Microsoft.")]
         public AppInsightsLevel UseAppInsights
         {
