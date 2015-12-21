@@ -98,6 +98,7 @@ namespace CommunityForumsNNTPServer
             u._userMappings.AddRange(this._userMappings);
 
             u.UseAppInsights = this._useAppInsights;
+            u.AppAccountId = this.AppAccountId;
 
             return u;
         }
